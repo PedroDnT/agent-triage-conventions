@@ -26,3 +26,9 @@ After someone answers a `needs-info` issue, change the label by hand.
 2. Check the labels with `gh api repos/OWNER/REPO/labels`.
 3. Claim an issue before you write: assign it, then comment `Claimed by: <agent> · branch <branch>`.
 4. Open pull requests ready for review, not as drafts, unless the repo says otherwise.
+
+## Create the labels
+
+Run `./create-labels.sh OWNER/REPO` to create the five labels in a repo.
+The script skips a label that already exists.
+Add `--dry-run` to see what it would do. It needs the `gh` CLI with write access to the repo.
