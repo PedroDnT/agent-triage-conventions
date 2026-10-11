@@ -75,7 +75,7 @@ Two shared workflows live in `.github/workflows/`. Other repos call them at tag 
 | Workflow     | Runs when                                                                  | Does                                                                                    |
 | ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `triage.yml` | An issue opens                                                             | Adds `needs-triage`, unless the issue has a triage label. A fixed rule, no LLM.         |
-| `agent.yml`  | A user with write access writes `@claude` in an issue, a comment or a review | Runs Claude Code. It works on a `claude/` branch and opens a pull request. It never merges. |
+| `agent.yml`  | A user with write access writes `@claude` in an issue, a comment or a review | Runs Claude Code. It pushes a `claude/` branch and posts a link. You open the pull request. |
 
 The agent has no label trigger. Applying `ready-for-agent` does not start it.
 
