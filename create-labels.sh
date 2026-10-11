@@ -6,7 +6,7 @@ set -euo pipefail
 repo="${1:-}"
 dry_run="${2:-}"
 
-if [[ ! "$repo" =~ ^[^/]+/[^/]+$ ]]; then
+if [[ ! "$repo" =~ ^[^/]+/[^/]+$ || ( -n "$dry_run" && "$dry_run" != "--dry-run" ) || $# -gt 2 ]]; then
   echo "Usage: $0 OWNER/REPO [--dry-run]" >&2
   exit 2
 fi
