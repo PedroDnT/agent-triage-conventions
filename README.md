@@ -4,13 +4,13 @@ Rules for issue labels and agents. They apply to any repo that uses them.
 
 ## Triage labels
 
-| Label             | Meaning                                                 |
-| ----------------- | ------------------------------------------------------- |
-| `needs-triage`    | The maintainer must evaluate the issue.                 |
-| `needs-info`      | The issue waits for more information from the reporter. |
-| `ready-for-agent` | The issue is fully specified. An agent may start work.  |
-| `ready-for-human` | A person must do the work.                              |
-| `wontfix`         | Nobody will act on the issue.                           |
+| Label             | Meaning                                    |
+| ----------------- | ------------------------------------------ |
+| `needs-triage`    | Needs owner triage                         |
+| `needs-info`      | Waiting on reporter for more information   |
+| `ready-for-agent` | Fully specified, ready for an agent        |
+| `ready-for-human` | Requires human implementation or decision  |
+| `wontfix`         | This will not be worked on                 |
 
 ## Priority labels
 
