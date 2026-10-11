@@ -24,6 +24,15 @@ Rules for issue labels and agents. They apply to any repo that uses them.
 Give an issue at most one priority label. The owner applies it.
 Priority is separate from triage. An issue can be `ready-for-agent` and `P2-later`.
 
+## Epic label
+
+| Label  | Meaning                                              |
+| ------ | ---------------------------------------------------- |
+| `epic` | Parent issue. The work happens in its child issues.  |
+
+Link the child issues to the epic with GitHub sub-issues.
+Never apply `ready-for-agent` to an epic. An agent takes a child issue, not the epic.
+
 ## What a label does
 
 No agent reads issue comments. No agent applies these labels on its own.
@@ -42,6 +51,14 @@ After someone answers a `needs-info` issue, change the label by hand.
 
 ## Create the labels
 
-Run `./create-labels.sh OWNER/REPO` to create the triage and priority labels in a repo.
-The script skips a label that already exists.
-Add `--dry-run` to see what it would do. It needs the `gh` CLI with write access to the repo.
+The script lives in this repo only. Run it from a clone of this repo:
+
+    ./create-labels.sh OWNER/REPO --dry-run
+
+Or run it from any folder, without a clone:
+
+    gh api repos/PedroDnT/agent-triage-conventions/contents/create-labels.sh \
+      -H "Accept: application/vnd.github.raw" | bash -s -- OWNER/REPO --dry-run
+
+The script creates the triage, priority and epic labels. It skips a label that already exists.
+Remove `--dry-run` to create the labels. It needs the `gh` CLI with write access to the target repo.

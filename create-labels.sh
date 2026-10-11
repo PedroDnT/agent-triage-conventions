@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Create the triage and priority labels in a repo. Skip any label that already exists.
+# Create the triage, priority and epic labels in a repo. Skip any label that already exists.
 # Usage: ./create-labels.sh OWNER/REPO [--dry-run]
 set -euo pipefail
 
@@ -22,6 +22,7 @@ labels=(
   "P1-next|d93f0b|The next item to work on."
   "P2-later|fbca04|Planned, but not the next item."
   "P3-parked|ededed|Not planned. Revisit later, or close."
+  "epic|ededed|Parent issue. The work happens in its child issues."
 )
 
 existing="$(gh api --paginate "repos/$repo/labels" --jq '.[].name')"
