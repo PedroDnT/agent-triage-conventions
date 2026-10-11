@@ -1,0 +1,25 @@
+# Shared workflow: add needs-triage to a new issue.
+# A fixed rule, no LLM: skip the issue if it already has a triage label.
+name: Triage new issue
+
+on:
+  workflow_call:
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add needs-triage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: ${{ toJson(github.event.issue.labels.*.name) }}
+        run: |
+          if echo "$LABELS" | grep -qE '"(needs-triage|needs-info|ready-for-agent|ready-for-human|wontfix)"'; then
+            echo "Issue #$NUMBER already has a triage label."
+            exit 0
+          fi
+          gh issue edit "$NUMBER" --add-label needs-triage
