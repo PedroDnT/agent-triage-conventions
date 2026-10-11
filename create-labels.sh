@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Create the five triage labels in a repo. Skip any label that already exists.
+# Create the triage and priority labels in a repo. Skip any label that already exists.
 # Usage: ./create-labels.sh OWNER/REPO [--dry-run]
 set -euo pipefail
 
@@ -13,11 +13,15 @@ fi
 
 # name|color|description
 labels=(
-  "needs-triage|d4c5f9|The maintainer must evaluate the issue."
-  "needs-info|fbca04|The issue waits for more information from the reporter."
-  "ready-for-agent|0e8a16|The issue is fully specified. An agent may start work."
-  "ready-for-human|1d76db|A person must do the work."
-  "wontfix|ffffff|Nobody will act on the issue."
+  "needs-triage|ededed|Needs owner triage"
+  "needs-info|E99695|Waiting on reporter for more information"
+  "ready-for-agent|0e8a16|Fully specified, ready for an agent"
+  "ready-for-human|b60205|Requires human implementation or decision"
+  "wontfix|ffffff|This will not be worked on"
+  "P0-critical|b60205|Act now. Drop other work."
+  "P1-next|d93f0b|The next item to work on."
+  "P2-later|fbca04|Planned, but not the next item."
+  "P3-parked|ededed|Not planned. Revisit later, or close."
 )
 
 existing="$(gh api --paginate "repos/$repo/labels" --jq '.[].name')"
