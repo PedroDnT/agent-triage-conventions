@@ -35,10 +35,15 @@ Never apply `ready-for-agent` to an epic. An agent takes a child issue, not the 
 
 ## What a label does
 
-No agent reads issue comments. No agent applies these labels on its own.
-This includes the priority labels.
-An agent acts on an issue only when the owner applies `ready-for-agent`
-or starts the agent by hand.
+No agent applies these labels on its own. This includes the priority labels.
+One exception: the triage workflow adds `needs-triage` to a new issue by a fixed rule, with no LLM.
+
+An agent acts on an issue only in two cases:
+
+1. The owner applies `ready-for-agent`.
+2. A user with write access writes `@claude` in an issue, a comment or a review.
+
+An agent reads the comments of an issue only when one of these two cases starts it.
 
 After someone answers a `needs-info` issue, change the label by hand.
 
@@ -62,3 +67,30 @@ Or run it from any folder, without a clone:
 
 The script creates the triage, priority and epic labels. It skips a label that already exists.
 Remove `--dry-run` to create the labels. It needs the `gh` CLI with write access to the target repo.
+
+## Automation
+
+Two shared workflows live in `.github/workflows/`. Other repos call them at tag `v1`.
+
+| Workflow     | Runs when                                                                  | Does                                                                                    |
+| ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `triage.yml` | An issue opens                                                             | Adds `needs-triage`, unless the issue has a triage label. A fixed rule, no LLM.         |
+| `agent.yml`  | A user with write access writes `@claude` in an issue, a comment or a review | Runs Claude Code. It works on a `claude/` branch and opens a pull request. It never merges. |
+
+The agent has no label trigger. Applying `ready-for-agent` does not start it.
+
+### Set up a repo
+
+1. Install the Claude GitHub app on the repo: https://github.com/apps/claude.
+   Or run `/install-github-app` in Claude Code.
+2. Run `claude setup-token`, then `gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo OWNER/REPO`.
+3. Copy `templates/conventions.yml` to `.github/workflows/conventions.yml` in the repo.
+4. Test: open an issue. It gets `needs-triage`. Then comment `@claude say hello`.
+
+### Release a change
+
+Callers use tag `v1`. A change reaches them only when you move the tag by hand, after the merge:
+
+    git tag -f v1 && git push -f origin v1
+
+A public repo can call these workflows only while this repo is public.
