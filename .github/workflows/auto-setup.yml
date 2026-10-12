@@ -1,0 +1,79 @@
+# Set up new repos for these conventions, with no manual step: every hour, run
+# setup-repo.sh on each new repo of the owner that does not have the caller workflow yet.
+# Needs 2 secrets in this repo: SETUP_TOKEN and CLAUDE_CODE_OAUTH_TOKEN (see README).
+name: Auto setup
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "OWNER/REPO to set up now, also an old repo. Empty: every new repo."
+        required: false
+        type: string
+      dry_run:
+        description: "Only print what it would do."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auto-setup
+  cancel-in-progress: false
+
+env:
+  # Repos created before this time are left alone, unless a manual run names them.
+  CREATED_AFTER: "2026-10-13T00:00:00Z"
+  # A repo with this topic is never set up.
+  OPT_OUT_TOPIC: no-agent-conventions
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up repos
+        env:
+          GH_TOKEN: ${{ secrets.SETUP_TOKEN }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          REPO: ${{ inputs.repo }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" || -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
+            echo "::error::Add the SETUP_TOKEN and CLAUDE_CODE_OAUTH_TOKEN secrets to this repo."
+            exit 1
+          fi
+
+          if [[ -n "$REPO" ]]; then
+            ./setup-repo.sh "$REPO" ${DRY_RUN:+"$DRY_RUN"}
+            exit 0
+          fi
+
+          repos="$(gh api --paginate "user/repos?affiliation=owner&per_page=100" --jq '.[]
+            | select((.fork or .archived) | not)
+            | select(.created_at >= env.CREATED_AFTER)
+            | select((.topics // []) | any(. == env.OPT_OUT_TOPIC) | not)
+            | .full_name')"
+
+          failed=0
+          for r in $repos; do
+            # An automatic first commit in an empty repo would reject the owner's first push.
+            if [[ "$(gh api "repos/$r/branches?per_page=1" --jq length)" == 0 ]]; then
+              echo "wait    $r is empty; it is set up after its first push"
+              continue
+            fi
+            if gh api "repos/$r/contents/.github/workflows/conventions.yml" >/dev/null 2>&1; then
+              continue
+            fi
+            echo "== $r"
+            ./setup-repo.sh "$r" ${DRY_RUN:+"$DRY_RUN"} || { echo "::error::setup failed for $r"; failed=1; }
+          done
+          exit "$failed"
