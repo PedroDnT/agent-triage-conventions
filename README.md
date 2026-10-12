@@ -96,3 +96,13 @@ Callers use tag `v1`. A change reaches them only when you move the tag by hand, 
     git tag -f v1 && git push -f origin v1
 
 A public repo can call these workflows only while this repo is public.
+
+## Cloud sessions: load agent-os
+
+`templates/cloud-setup-agent-os.sh` is a setup script for the Claude Code cloud environment. It clones the private repo `PedroDnT/agent-os` (read-only) into `~/.agents`, links the global `AGENTS.md` to `~/.claude/CLAUDE.md`, and links the shared skills.
+
+1. In the cloud environment menu, choose Edit, then paste the script under Setup script.
+2. If the log says `could not load agent-os`, add the environment variable `AGENT_OS_TOKEN`: a fine-grained token with Contents read-only on `agent-os` only.
+3. In a new session, check `ls ~/.agents` and `readlink ~/.claude/CLAUDE.md`.
+
+Never commit to `agent-os` from the cloud. Its autosync on the Mac pushes but never pulls, so a commit from elsewhere would block it.
