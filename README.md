@@ -79,6 +79,8 @@ Two shared workflows live in `.github/workflows/`. Other repos call them at tag 
 
 The agent has no label trigger. Applying `ready-for-agent` does not start it.
 
+Every repo's agent gets the same base rules (`claude_args` in `agent.yml`): read the repo's `AGENTS.md` or `CLAUDE.md` first, never change labels, never merge, reply short in the language of the request, no em dashes.
+
 ### Set up a repo
 
 1. Install the Claude GitHub app on the repo: https://github.com/apps/claude.
