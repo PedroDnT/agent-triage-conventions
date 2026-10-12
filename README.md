@@ -100,6 +100,29 @@ For each repo:
 
 The script commits straight to the default branch. A repo that protects that branch rejects the commit. Copy the workflow in a pull request there.
 
+### Automatic setup
+
+`.github/workflows/auto-setup.yml` runs every hour. It runs `setup-repo.sh` on each repo you own that:
+
+- was created on or after `CREATED_AFTER` (2026-10-13 00:00 UTC) and is not a fork or archived;
+- does not have the topic `no-agent-conventions`;
+- has at least one commit (an automatic first commit would reject your first push);
+- does not have `.github/workflows/conventions.yml` yet.
+
+To set up one repo now, also an old one: in the Actions tab, choose "Auto setup", then "Run workflow", and enter `OWNER/REPO`. Tick `dry_run` to only see what it would do. The GitHub mobile app can do this too.
+
+Do once, before the first run:
+
+1. Create a fine-grained token at https://github.com/settings/personal-access-tokens/new. Repository access: "All repositories", which includes the repos you create later. Permissions, read and write: Contents, Issues, Secrets, Workflows.
+2. Add 2 Actions secrets to this repo: `SETUP_TOKEN` (that token) and `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`).
+   `gh secret set SETUP_TOKEN --repo PedroDnT/agent-triage-conventions` asks for the value, so it stays out of your shell history.
+
+Warning: `SETUP_TOKEN` can write to all your repos, and anyone who can push to this repo can use it. Keep write access to this repo for yourself only.
+
+- Renew both tokens before they expire, or the hourly run fails.
+- GitHub turns off a scheduled workflow in a public repo after 60 days with no activity. Turn it on again in the Actions tab.
+- To keep a repo out, add the topic `no-agent-conventions`. Without it, a deleted `conventions.yml` comes back on the next run.
+
 ### Debug a failed run
 
 A failed run says only "Claude encountered an error". The `debug` input of `agent.yml` shows the full output in the job log.
