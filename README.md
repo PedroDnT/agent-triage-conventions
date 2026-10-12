@@ -89,6 +89,19 @@ Every repo's agent gets the same base rules (`claude_args` in `agent.yml`): read
 3. Copy `templates/conventions.yml` to `.github/workflows/conventions.yml` in the repo.
 4. Test: open an issue. It gets `needs-triage`. Then comment `@claude say hello`.
 
+### Debug a failed run
+
+A failed run says only "Claude encountered an error". The `debug` input of `agent.yml` shows the full output in the job log.
+The template sets `debug` from the repo variable `CLAUDE_AGENT_DEBUG`.
+
+Warning: the full output can hold secrets, and the job log of a public repo is public. Turn debug off when you have the error.
+
+1. `gh variable set CLAUDE_AGENT_DEBUG --body true --repo OWNER/REPO`
+2. Write `@claude` again, then read the job log.
+3. `gh variable delete CLAUDE_AGENT_DEBUG --repo OWNER/REPO`
+
+A caller that passes `debug` needs a `v1` that has the input. Move the tag first (see "Release a change").
+
 ### Release a change
 
 Callers use tag `v1`. A change reaches them only when you move the tag by hand, after the merge:

@@ -5,6 +5,11 @@ name: Claude agent
 
 on:
   workflow_call:
+    inputs:
+      debug:
+        description: "Show Claude's full output in the job log. It can hold secrets, and a public repo's log is public."
+        type: boolean
+        default: false
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN:
         required: true
@@ -29,6 +34,8 @@ jobs:
         uses: anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc # v1.0.248
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Off by default. Without it, a failed run hides its error.
+          show_full_output: ${{ inputs.debug }}
           # Base rules for every repo. The repo's own AGENTS.md or CLAUDE.md adds the rest.
           claude_args: |
             --append-system-prompt "Read the repository AGENTS.md or CLAUDE.md before you act, and follow it. Never add, remove or change labels on issues or pull requests. Never merge a pull request. Reply in the language of the issue or comment that started you. Keep replies short. Do not use em dashes."
