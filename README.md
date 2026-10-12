@@ -67,6 +67,7 @@ Or run it from any folder, without a clone:
 
 The script creates the triage, priority and epic labels. It skips a label that already exists.
 Remove `--dry-run` to create the labels. It needs the `gh` CLI with write access to the target repo.
+`setup-repo.sh` runs this script too (see "Set up a repo").
 
 ## Automation
 
@@ -83,11 +84,21 @@ Every repo's agent gets the same base rules (`claude_args` in `agent.yml`): read
 
 ### Set up a repo
 
-1. Install the Claude GitHub app on the repo: https://github.com/apps/claude.
-   Or run `/install-github-app` in Claude Code.
-2. Run `claude setup-token`, then `gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo OWNER/REPO`.
-3. Copy `templates/conventions.yml` to `.github/workflows/conventions.yml` in the repo.
-4. Test: open an issue. It gets `needs-triage`. Then comment `@claude say hello`.
+`setup-repo.sh` creates the labels, commits `templates/conventions.yml` as `.github/workflows/conventions.yml` on the default branch, and sets the `CLAUDE_CODE_OAUTH_TOKEN` secret. It skips each part that is already there.
+
+Do once:
+
+1. Install the Claude GitHub app with "All repositories": https://github.com/apps/claude. Then every new repo has it.
+2. Run `claude setup-token` and keep the token.
+
+For each repo:
+
+1. Put the token in your shell, without shell history: `read -rs CLAUDE_CODE_OAUTH_TOKEN && export CLAUDE_CODE_OAUTH_TOKEN`.
+2. `./setup-repo.sh OWNER/REPO --dry-run`, then again without `--dry-run`.
+   Without a clone: `gh api repos/PedroDnT/agent-triage-conventions/contents/setup-repo.sh -H "Accept: application/vnd.github.raw" | bash -s -- OWNER/REPO`.
+3. Test: open an issue. It gets `needs-triage`. Then comment `@claude say hello`.
+
+The script commits straight to the default branch. A repo that protects that branch rejects the commit. Copy the workflow in a pull request there.
 
 ### Debug a failed run
 
